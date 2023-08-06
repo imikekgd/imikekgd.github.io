@@ -1,6 +1,16 @@
 <!DOCTYPE html>
 <html>
 <body>
-<h1>Kaliningrad.Pro</h1>
+<script src="//unpkg.com/alpinejs" defer></script>
+
+
 </body>
+<div x-data="{ open: false }">
+    <button @click="open = true">Expand</button>
+
+    <span x-show="open">
+        Content...
+    </span>
+</div>
+<h1>Kaliningrad.Pro</h1>
 </html>
