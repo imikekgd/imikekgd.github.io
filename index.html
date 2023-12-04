@@ -1,28 +1,286 @@
 <!doctype html>
 <html lang="ru" class="h-full">
 <head>
+    <style>[x-cloak] { display: none !important; }</style>
     <meta charset="UTF-8">
     <meta name="viewport"
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
     <title>kaliningrad.pro</title>
     <meta charset="utf-8">
-    <script defer src="_/alpine.js"></script>
-    <script src="_/tw.js"></script>
-    <link rel="stylesheet" href="_/hack.css">
+    <script defer src="/assets/alpine.js"></script>
+    <script src="/assets/tw.js"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        dosblack: '#000000',
+                        dosblue: '#0000af',
+                        doswhite: '#c0c0c0',
+                        doscyan: '#54ffff',
+                        dosgreen: '#008080',
+                        dosred: '#aa0000',
+                        dosyellow: '#ffff00',
+                    },
+                    keyframes: {
+                        blink: {
+                            '0%': { opacity: 0 },
+                            '50%': { opacity: 1 }
+                        }
+                    },
+                    animation: {
+                        'blink': 'blink 1s step-end infinite',
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="stylesheet" href="/assets/hack.css">
+    <link href="https://fonts.cdnfonts.com/css/fixedsys-excelsior-301" rel="stylesheet">
     <style>
-        body {
-            font-family: 'Hack', monospace;
+        #dos {
+            font-family: 'Fixedsys Excelsior 3.01', monospace;
+            /* todo: make cursor jumpy by chars */
+            cursor: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='red' width='8' height='15' viewBox='0 0 8 15'%3e%3crect width='8' height='15'/%3e%3c/svg%3e") 4 7.5, pointer;
         }
-        ::selection {
-            color: blue;
-            background-color: gray;
-        }
+
+
+        /*#dos::selection {*/
+        /*    color: blue;*/
+        /*    background-color: gray;*/
+        /*}*/
     </style>
 </head>
-<body class="h-full p-10 text-white bg-black">
-<h1 class="text-xl">kaliningrad.pro</h1>
-<p>it since 1979</p>
-<p>it@kaliningrad.pro</p>
+<body class="h-full p-10 text-slate-200 bg-slate-900">
+
+<!-- https://en.wikipedia.org/wiki/Box-drawing_character -->
+<!-- http://xahlee.info/comp/unicode_drawing_shapes.html -->
+
+<div
+     x-cloak
+     id="dos"
+     x-data="dos"
+     @mouseover="$event"
+     class="w-[640px] select-none bg-dosblack flex flex-col whitespace-pre relative"
+     :class="`h-[${ll*lines}px] text-[${lh}px] leading-[${ll}px]`">
+    <div id="panels" class="w-[640px] flex flex-row">
+
+        <div id="lp" class="w-[320px] flex flex-col bg-dosblue text-doscyan">
+
+            <div class="w-[320px] overflow-hidden">╔════════════╤═══<span class="bg-dosgreen text-dosblack"> C:\ </span>════╤════════════╗</div>
+            <div class="w-[320px] overflow-hidden">║    <spam class="text-dosyellow">Name</spam>    │    <spam class="text-dosyellow">Name</spam>    │    <spam class="text-dosyellow">Name</spam>    ║</div>
+
+            <div class="w-[320px] flex flex-row">
+                <template x-for="c in [0,1,2]">
+                    <div class="flex flex-col">
+                        <template x-for="lpitm in chunks(lp.curitems)[c]">
+                            <div
+                                @dblclick="lpitm.link?lpitm.link:prepare(lpitm)"
+                                @click="lpitm.link?lpitm.link:prepare(lpitm)"
+                                class="flex flex-row">
+                                <div x-show="c===0" class="overflow-hidden">║</div>
+                                <template x-if="lpitm">
+                                    <div class="overflow-hidden"><span class="hover:bg-dosgreen hover:text-dosblack" x-text="dosname(lpitm.title)"></span></div>
+                                </template>
+                                <template x-if="!lpitm">
+                                    <div class="overflow-hidden"><span x-text="dosname('')"></span></div>
+                                </template>
+                                <div x-show="c<2" class="overflow-hidden">│</div>
+                                <div x-show="c===2" class="overflow-hidden">║</div>
+                            </div>
+                            <!--                    <div class="w-[320px] overflow-hidden">║<span class="hover:bg-dosgreen hover:text-dosblack" x-text="lpitm.name.padEnd(12, ' ')"></span>│<span x-text="lpitm.name.padEnd(12, ' ')"></span>│<span x-text="lpitm.name.padEnd(12, ' ')"></span>║</div>-->
+                        </template>
+                    </div>
+                </template>
+            </div>
+
+            <div class="w-[320px] overflow-hidden">╟────────────┴────────────┴────────────╢</div>
+            <div class="w-[320px] overflow-hidden">║     Name     Name          Name      ║</div>
+            <div class="w-[320px] overflow-hidden">╚══════════════════════════════════════╝</div>
+
+        </div>
+
+        <div id="rp" class="w-[320px] flex flex-col bg-dosblue text-doscyan relative">
+            <template x-for="ln in lp.info.split('\n');">
+                <div class="w-[320px] overflow-hidden" x-text="ln"></div>
+            </template>
+            <span class="bg-dosgreen text-dosblack absolute right-0" x-html="gettimer"></span>
+        </div>
+
+    </div>
+
+    <div id="promt" class="w-[640px] bg-dosblack text-doswhite">C:>mailto:hello@kaliningrad.pro<div class="inline-block w-2 h-0.5 -my-0.5 bg-doswhite animate-[blink_0.25s_step-end_infinite]"></div></div>
+    <div id="fun" class="w-[640px] bg-dosgreen text-doswhite flex">
+        <template x-for="funitm, idx in fun.items">
+            <div
+                    @click="funitm.link"
+                    class="w-[64px] flex">
+                <span x-text="idx+1" class="bg-dosblack"></span>
+                <span x-text="funitm.title" class="grow text-dosblack"></span>
+                <span x-show="idx!==9" class="bg-dosblack">&nbsp;</span>
+            </div>
+        </template>
+    </div>
+
+    <template x-if="error.show">
+    <div>
+        <div
+            class="absolute bg-dosblack left-[130px] top-[130px] opacity-90 flex flex-col">
+            <template x-for="ln in error.body.split('\n');">
+                <div class="w-[320px] overflow-hidden">&nbsp;</div>
+            </template>
+        </div>
+        <div class="absolute bg-dosred text-white left-[120px] top-[120px] flex flex-col">
+            <template x-for="ln in error.body.split('\n');">
+                <div class="w-[320px] overflow-hidden" x-text="ln"></div>
+            </template>
+        </div>
+    </div>
+    </template>
+
+</div>
+
+<script>
+    const lines = 25
+    const lh = 16
+    const ll = 15
+
+    document.addEventListener('alpine:init', () => {
+        Alpine.data('dos', () => ({
+            init() {
+                this.prepare(this.curitem)
+                this.fun.items[9]['link'] = () => this.showerror()
+                setInterval(() => {
+                    this.curtime = new Date
+                }, 1000);
+            },
+            curtime: new Date,
+            get gettimer() {
+                let hours = this.curtime.getHours();
+                let minutes = this.curtime.getMinutes();
+                let ampm = hours >= 12 ? 'p' : 'a';
+                hours = hours % 12;
+                hours = hours ? hours : 12; // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0' + minutes : minutes;
+                hours = hours < 10 ? ' ' + hours : hours;
+                let strTime = `${hours}<span class="animate-blink">:</span>${minutes}${ampm}`;
+                return strTime;
+            },
+            showerror() {
+                this.error.show=!this.error.show
+            },
+            prepare(itm, count = (lines-7)*3) {
+                let ret=itm?itm.children:this.lp.items
+                this.curitem=itm
+                if (this.curitem && ret[0].title!=='..') ret.unshift({title: '..', link: () => this.prepare(null)})
+                if (ret.length<count) {
+                    ret.push(...Array(count-ret.length))
+                }
+                ret.sort(function (a, b) {
+                    return a.title.localeCompare(b.title);
+                });
+                this.lp.curitems=ret
+            },
+            dosname(longname) {
+                let ret = longname.padEnd(12, ' ')
+                // todo: make increasing not just ~1
+                ret = ret.length === ret.substring(0, 12).length ? ret.substring(0, 12) : ret.substring(0, 10) + '~1'
+                return ret
+            },
+            fun: {
+                items: [
+                    {title: 'Help'},
+                    {title: 'E-Mail', link: () => alert("hello@kaliningrad.pro")},
+                    {title: 'Phone', link: () => alert("+7 (4012) 71-13-13")},
+                    {title: ''},
+                    {title: ''},
+
+                    {title: ''},
+                    {title: ''},
+                    {title: ''},
+                    {title: ''},
+                    {title: 'Quit'},
+                ]
+            },
+            chunks(array) {
+                let chunks = []
+                for (let i = 0; i < array.length; i += lines-7) {
+                    chunks.push(array.slice(i, i + lines-7))
+                }
+                return chunks
+            },
+            error: {
+              show: true,
+              body:`
+.
+  ╔════════════════ Error ═══════════╗
+  ║                                  ║
+  ╚══════════════════════════════════╝
+.`
+            },
+            rp: {},
+            lp: {
+                info:
+`╔════════════════ Info ════════════════╗
+║                                      ║
+╟──────────────────────────────────────╢
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+╟──────────────────────────────────────╢
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+╚══════════════════════════════════════╝`,
+                curitem: null,
+                curitems: [],
+                items: [
+                    {title: 'IMAGES',
+                        children: [
+                            {title: 'soon'},
+                        ]},
+                    {title: 'MUSIC',
+                        children: [
+                            {title: 'soon'},
+                        ]},
+                    {title: 'VIDEO',
+                        children: [
+                                {title: 'soon'},
+                        ]},
+                    {
+                        title: 'PRON',
+                        children: [
+                            {title: 'soon'},
+                        ]
+                    },
+                    {
+                        title: 'GAMES',
+                        children: [
+                            {title: 'soon'},
+                        ]
+                    },
+                ]
+            }
+        }))
+    })
+</script>
+
 </body>
 </html>
