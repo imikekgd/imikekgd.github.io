@@ -128,22 +128,25 @@
     </div>
 
     <template x-if="error.show">
-    <div>
-        <div
-            class="absolute bg-dosblack left-[130px] top-[130px] opacity-90 flex flex-col">
-            <template x-for="ln in error.body.split('\n');">
-                <div class="w-[320px] overflow-hidden">&nbsp;</div>
-            </template>
+        <div class="absolute"
+             :class="`left-[calc(50%-${Math.floor(error.body.split('\n')[2].length/2)}ch)] top-[${ll*Math.floor(error.body.split('\n').length/2)}px]`">
+            <div
+                class="absolute bg-dosblack opacity-90 flex flex-col left-[1em] top-[1em]">
+                <template x-for="ln in error.body.split('\n');">
+                    <div class="overflow-hidden" x-text="ln"></div>
+                </template>
+            </div>
+            <div class="absolute bg-dosred text-white flex flex-col left-0 top-0">
+                <template x-for="ln in error.body.split('\n');">
+                    <div class="overflow-hidden" x-text="ln"></div>
+                </template>
+            </div>
         </div>
-        <div class="absolute bg-dosred text-white left-[120px] top-[120px] flex flex-col">
-            <template x-for="ln in error.body.split('\n');">
-                <div class="w-[320px] overflow-hidden" x-text="ln"></div>
-            </template>
-        </div>
-    </div>
     </template>
 
 </div>
+
+<audio id="myaudio" controls src="/content/The Nightcrawlers - Push The Feeling On [The Dub Of Doom].mp3"></audio>
 
 <script>
     const lines = 25
@@ -157,6 +160,7 @@
                 this.fun.items[9]['link'] = () => this.showerror()
                 setInterval(() => {
                     this.curtime = new Date
+                    console.log(myaudio.currentTime)
                 }, 1000);
             },
             curtime: new Date,
@@ -215,13 +219,12 @@
                 return chunks
             },
             error: {
-              show: true,
+              show: false,
               body:`
-.
-  ╔════════════════ Error ═══════════╗
-  ║                                  ║
-  ╚══════════════════════════════════╝
-.`
+\xa0
+\xa0\xa0╔══ Error ══╗\xa0\xa0
+\xa0\xa0╚═══════════╝\xa0\xa0
+\xa0`
             },
             rp: {},
             lp: {
