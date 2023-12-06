@@ -9,11 +9,13 @@
     <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
-    <link rel="manifest" href="/site.webmanifest">
+<!--    <link rel="manifest" href="/site.webmanifest">-->
     <title>kaliningrad.pro</title>
     <meta charset="utf-8">
     <script defer src="/assets/alpine.js"></script>
     <script src="/assets/tw.js"></script>
+    <!-- const dosstructure -->
+    <script src="/assets/info.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -56,7 +58,7 @@
         /*}*/
     </style>
 </head>
-<body class="h-full p-10 text-slate-200 bg-slate-900">
+<body class="h-full text-slate-200 bg-slate-900">
 
 <!-- https://en.wikipedia.org/wiki/Box-drawing_character -->
 <!-- http://xahlee.info/comp/unicode_drawing_shapes.html -->
@@ -72,23 +74,19 @@
 
         <div id="lp" class="w-[320px] flex flex-col bg-dosblue text-doscyan">
 
-            <div class="w-[320px] overflow-hidden">╔════════════╤═══<span class="bg-dosgreen text-dosblack"> C:\ </span>════╤════════════╗</div>
+            <div class="w-[320px] overflow-hidden" x-html="curpathformatted"></div>
             <div class="w-[320px] overflow-hidden">║    <spam class="text-dosyellow">Name</spam>    │    <spam class="text-dosyellow">Name</spam>    │    <spam class="text-dosyellow">Name</spam>    ║</div>
 
             <div class="w-[320px] flex flex-row">
-                <template x-for="c in [0,1,2]">
+                <template x-for="c in [0,1,2]"> <!-- todo: remove  ??? -->
                     <div class="flex flex-col">
-                        <template x-for="lpitm in chunks(lp.curitems)[c]">
+                        <template x-for="(lpitmvalue, lpitmkey) in getObj(lp.items, lp.curpath)">
                             <div
-                                @dblclick="lpitm.link?lpitm.link:prepare(lpitm)"
-                                @click="lpitm.link?lpitm.link:prepare(lpitm)"
+                                @click="lpitmvalue===null?fileaction(lpitmkey):lp.curpath+='.'+lpitmkey"
                                 class="flex flex-row">
                                 <div x-show="c===0" class="overflow-hidden">║</div>
-                                <template x-if="lpitm">
-                                    <div class="overflow-hidden"><span class="hover:bg-dosgreen hover:text-dosblack" x-text="dosname(lpitm.title)"></span></div>
-                                </template>
-                                <template x-if="!lpitm">
-                                    <div class="overflow-hidden"><span x-text="dosname('')"></span></div>
+                                <template x-if="lpitmkey">
+                                    <div class="overflow-hidden"><span class="hover:bg-dosgreen hover:text-dosblack" x-text="dosname(lpitmkey, lpitmvalue)"></span></div>
                                 </template>
                                 <div x-show="c<2" class="overflow-hidden">│</div>
                                 <div x-show="c===2" class="overflow-hidden">║</div>
@@ -100,7 +98,7 @@
             </div>
 
             <div class="w-[320px] overflow-hidden">╟────────────┴────────────┴────────────╢</div>
-            <div class="w-[320px] overflow-hidden">║     Name     Name          Name      ║</div>
+            <div class="w-[320px] overflow-hidden" x-html="curinfoformatted"></div>
             <div class="w-[320px] overflow-hidden">╚══════════════════════════════════════╝</div>
 
         </div>
@@ -144,56 +142,133 @@
         </div>
     </template>
 
+    <audio class="fixed right-1" x-ref="audioplayer" controls src=""></audio>
+
 </div>
 
-<audio id="myaudio" controls src="/content/The Nightcrawlers - Push The Feeling On [The Dub Of Doom].mp3"></audio>
 
 <script>
     const lines = 25
     const lh = 16
     const ll = 15
 
+
+
+    function wordWrap(str, maxWidth) {
+
+        function testWhite(x) {
+        var white = new RegExp(/^\s$/);
+            return white.test(x.charAt(0));
+        };
+
+        var newLineStr = "\n";
+        done = false;
+        res = '';
+        while (str.length > maxWidth) {
+            found = false;
+            // Inserts new line at first whitespace of the line
+            for (i = maxWidth - 1; i >= 0; i--) {
+                if (testWhite(str.charAt(i))) {
+                    res = res + [str.slice(0, i), newLineStr].join('');
+                    str = str.slice(i + 1);
+                    found = true;
+                    break;
+                }
+            }
+            // Inserts new line at maxWidth position, the word is too long to wrap
+            if (!found) {
+                res += [str.slice(0, maxWidth), newLineStr].join('');
+                str = str.slice(maxWidth);
+            }
+
+        }
+
+        return res + str;
+    }
+    function getObj(object, path) {
+        path = path.replace(/[\[]/gm, '.').replace(/[\]]/gm, '')
+        let keys = path.split('.'),
+            last = keys.pop()
+
+        const ret = keys.reduce(function (o, k) {
+            return o[k] = o[k] || {}
+        }, object)[last]
+
+        return ret
+    }
+
     document.addEventListener('alpine:init', () => {
         Alpine.data('dos', () => ({
             init() {
-                this.prepare(this.curitem)
+                // this.prepare(this.curpath)
                 this.fun.items[9]['link'] = () => this.showerror()
                 setInterval(() => {
                     this.curtime = new Date
-                    console.log(myaudio.currentTime)
+                    console.log(this.$refs.audioplayer.currentTime)
                 }, 1000);
             },
             curtime: new Date,
+            fileaction(filename) {
+                // just simple handling
+                console.log(filename)
+                // if mp3
+                const physicalpath = '/dos/' + this.lp.curpath.replaceAll('.', '/') + '/' + filename
+                console.log(physicalpath)
+                this.$refs.audioplayer.src = physicalpath
+                this.lp.info = this.lp.audioplayer.controls
+
+                let client = new XMLHttpRequest()
+                client.open('GET', '/dos/C/home/шмурдюк.txt')
+                client.onreadystatechange = () => {
+                  this.lp.info = wordWrap(client.responseText, 40)
+                }
+                client.send()
+
+            },
+            get curpathformatted() {
+                let path = this.lp.curpath
+                return `╔════════════╤═══<span class="bg-dosgreen text-dosblack">\xa0${path}\xa0</span>════╤════════════╗`
+            },
+            get curinfoformatted() {
+                let path = this.lp.curpath
+                return `║              <span class="bg-dosgreen text-dosblack">\xa0${path}\xa0</span>                     ║`
+            },
             get gettimer() {
-                let hours = this.curtime.getHours();
-                let minutes = this.curtime.getMinutes();
-                let ampm = hours >= 12 ? 'p' : 'a';
-                hours = hours % 12;
-                hours = hours ? hours : 12; // the hour '0' should be '12'
-                minutes = minutes < 10 ? '0' + minutes : minutes;
-                hours = hours < 10 ? ' ' + hours : hours;
-                let strTime = `${hours}<span class="animate-blink">:</span>${minutes}${ampm}`;
-                return strTime;
+                let hours = this.curtime.getHours()
+                let minutes = this.curtime.getMinutes()
+                let ampm = hours >= 12 ? 'p' : 'a'
+                hours = hours % 12
+                hours = hours ? hours : 12 // the hour '0' should be '12'
+                minutes = minutes < 10 ? '0' + minutes : minutes
+                hours = hours < 10 ? ' ' + hours : hours
+                let strTime = `${hours}<span class="animate-blink">:</span>${minutes}${ampm}`
+                return strTime
             },
             showerror() {
                 this.error.show=!this.error.show
             },
-            prepare(itm, count = (lines-7)*3) {
-                let ret=itm?itm.children:this.lp.items
-                this.curitem=itm
-                if (this.curitem && ret[0].title!=='..') ret.unshift({title: '..', link: () => this.prepare(null)})
-                if (ret.length<count) {
-                    ret.push(...Array(count-ret.length))
-                }
-                ret.sort(function (a, b) {
-                    return a.title.localeCompare(b.title);
-                });
-                this.lp.curitems=ret
+            prepare(count = (lines-7)*3) {
+                // let ret = Object.keys(this.lp.items)
+                // let ret=itm?Object.keys(this.lp.items[itm]):Object.keys(this.lp.items)
+                // this.curitem=this.lp.curitems[itm] // && ret[0]!=='..'
+                // if (this.curitem) ret.unshift('..')
+                // if (ret.length<count) {
+                //     ret.push(...Array(count-ret.length))
+                // }
+                // ret.sort(function (a, b) {
+                //     return a.title.localeCompare(b.title);
+                // });
+                // console.log('curitem: ', this.curitem)
+                // console.log('ret: ', ret)
+                // this.lp.curitems=ret
             },
-            dosname(longname) {
-                let ret = longname.padEnd(12, ' ')
+            dosname(k, v) {
+                // console.log('k:', k, 'v: ', v)
+                let ret = k.padEnd(12, ' ')
                 // todo: make increasing not just ~1
+                // UpperCase for dirs LoweCase for files - just for oldschool style...
                 ret = ret.length === ret.substring(0, 12).length ? ret.substring(0, 12) : ret.substring(0, 10) + '~1'
+                if (v === null) ret = ret.toLowerCase(); else ret = ret.toUpperCase();
                 return ret
             },
             fun: {
@@ -212,11 +287,11 @@
                 ]
             },
             chunks(array) {
-                let chunks = []
-                for (let i = 0; i < array.length; i += lines-7) {
-                    chunks.push(array.slice(i, i + lines-7))
-                }
-                return chunks
+                // let chunks = []
+                // for (let i = 0; i < array.length; i += lines-7) {
+                //     chunks.push(array.slice(i, i + lines-7))
+                // }
+                return array
             },
             error: {
               show: false,
@@ -228,6 +303,31 @@
             },
             rp: {},
             lp: {
+                audioplayer:{
+                    controls:
+`╔════════════════ Media ═══════════════╗
+║                                      ║
+╟──────────────────────────────────────╢
+║  ┌────────────────────────────────┐  ║
+║  │ ░░░░░░░░░░░▓▓    ██   ▌▌       │  ║
+║  └────────────────────────────────┘  ║
+║   [  Ok  ] [  Play  ]       [ ][x]   ║
+╟──────────────────────────────────────╢
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+║                                      ║
+╚══════════════════════════════════════╝`,                },
                 info:
 `╔════════════════ Info ════════════════╗
 ║                                      ║
@@ -252,34 +352,8 @@
 ║                                      ║
 ║                                      ║
 ╚══════════════════════════════════════╝`,
-                curitem: null,
-                curitems: [],
-                items: [
-                    {title: 'IMAGES',
-                        children: [
-                            {title: 'soon'},
-                        ]},
-                    {title: 'MUSIC',
-                        children: [
-                            {title: 'soon'},
-                        ]},
-                    {title: 'VIDEO',
-                        children: [
-                                {title: 'soon'},
-                        ]},
-                    {
-                        title: 'PRON',
-                        children: [
-                            {title: 'soon'},
-                        ]
-                    },
-                    {
-                        title: 'GAMES',
-                        children: [
-                            {title: 'soon'},
-                        ]
-                    },
-                ]
+                curpath: 'C',
+                items: dosstructure.dos
             }
         }))
     })
