@@ -80,9 +80,17 @@
             <div class="w-[320px] flex flex-row">
                 <template x-for="c in [0,1,2]"> <!-- todo: remove  ??? -->
                     <div class="flex flex-col">
+                        <template x-if="lp.curpath.split('.').length>1">
+                            <div
+                                @click="diraction(lp.curpath)"
+                                class="flex flex-row">
+                                <div class="overflow-hidden"><span class="hover:bg-dosgreen hover:text-dosblack" x-text="dosname('..')"></span></div>
+                            </div>
+                        </template>
+
                         <template x-for="(lpitmvalue, lpitmkey) in getObj(lp.items, lp.curpath)">
                             <div
-                                @click="lpitmvalue===null?fileaction(lpitmkey):lp.curpath+='.'+lpitmkey"
+                                @click="lpitmvalue===null?fileaction(lpitmkey):diraction(lpitmkey)"
                                 class="flex flex-row">
                                 <div x-show="c===0" class="overflow-hidden">║</div>
                                 <template x-if="lpitmkey">
@@ -214,6 +222,16 @@
                 }, 1000);
             },
             curtime: new Date,
+            diraction(dirname) {
+                if(this.lp.curpath!==dirname){
+                    this.lp.curpath+='.'+dirname
+                } else {
+                    let split = dirname.split(".");
+                    let splicedStr = split.slice(0, split.length - 1).join(".");
+                    this.lp.curpath=splicedStr
+                }
+                this.prepare()
+            },
             fileaction(filename) {
                 // just simple handling
                 console.log(filename)
@@ -255,6 +273,9 @@
                 this.error.show=!this.error.show
             },
             prepare(count = (lines-7)*3) {
+                let a=getObj(this.lp.items, this.lp.curpath)
+                console.log(a)
+
                 // let ret = Object.keys(this.lp.items)
                 // let ret=itm?Object.keys(this.lp.items[itm]):Object.keys(this.lp.items)
                 // this.curitem=this.lp.curitems[itm] // && ret[0]!=='..'
