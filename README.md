@@ -5,7 +5,7 @@
 * Школа №6
 * КГТУ (ФАПУ, КС)
 * Фигурнов «IBM PC для пользователя»
-* Sony Ericsson T65
+* ККЦ / Экстел GSM / Sony Ericsson T65 / 0112
 * Universal / Sense / Penta Club / Колос / Сказка / Ольштын / Вагонка / ДП (Металлотека) / ДКЖ 
 * Новый Наблюдатель
 * Телеканал Премьер
@@ -13,19 +13,20 @@
 * MTV / VIVA
 * Видеосалоны по рублю, геймхолы Atari и ZX Spectrum («Ераз» в частности)
 * Масяня
+* Связьинформ / Gazinter.net / Диалог / ByteCity
 * Киберда
 * Pentium 200 MMX
 * MS-DOS / OS/2 / QNX / Ubuntu 4 / Windows NT
 * Dial-Up Газинтернет (1$/час)
-* Quake 1
+* Dune 2 / Quake 1 
 * FidoNet / BBS
 * Зелёный чат ВестБалт Телеком
 * kulichki.net 
 * Borland Turbo Pascal
 * Delphi
-* LISP
+* LISP / VBA
 * FoxPro
-* Лексикон редактор документов
+* Редактор документов «Лексикон»
 * Macromedia Flash / ColdFusion / Fireworks / Dreamweaver
 * Kinetix 3D Studio MAX / AutoCAD / QuarkXPress
 * HotDog HTML Editor / UltraEdit
@@ -35,8 +36,9 @@
 * ~~Wi-Fi~~
 * ~~iPhone~~
 * ~~Криптовалюта~~
+* ~~мессенджеры / боты~~
 * ~~QR~~
-* ~~Instagram / Youtube / Tik Tok и проч~~
+* ~~Instagram / VC / OK / Youtube / Tik Tok и проч~~
 * ~~Блогеры / Инфлюэнсеры~~
 * ~~COVID-19~~
 * ~~Майдан~~
