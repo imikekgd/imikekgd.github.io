@@ -152,7 +152,13 @@
     const lh = 16
     const ll = 15
 
-
+    function toggleFullScreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen();
+      } else if (document.exitFullscreen) {
+        document.exitFullscreen();
+      }
+    }
 
     function wordWrap(str, maxWidth) {
 
@@ -215,6 +221,7 @@
                 const physicalpath = '/dos/' + this.lp.curpath.replaceAll('.', '/') + '/' + filename
                 console.log(physicalpath)
                 this.$refs.audioplayer.src = physicalpath
+                this.$refs.audioplayer.play()
                 this.lp.info = this.lp.audioplayer.controls
 
                 let client = new XMLHttpRequest()
@@ -282,7 +289,7 @@
                     {title: ''},
                     {title: ''},
                     {title: ''},
-                    {title: ''},
+                    {title: 'FullScr', link: () => toggleFullScreen()},
                     {title: 'Quit'},
                 ]
             },
